@@ -5,6 +5,9 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@350;450;550;650;800&family=JetBrains+Mono:wght@450;650&display=swap');
 
+/* tsParticles canvas */
+#tsparticles { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
 /* ── Root: deep-space spectrum ── */
 :root {
   --bg-void: #060b14;
@@ -46,11 +49,53 @@ body {
   font-family: var(--font-sans);
   font-size: 14.5px; line-height: 1.55;
   color: var(--text-primary);
-  background: var(--bg-void);
+  background: linear-gradient(180deg, #060b18 0%, #0a1228 50%, #0c1732 100%);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background 0.8s ease;
 }
+[data-theme="light"] body {
+  background: linear-gradient(180deg, #e8eef6 0%, #f0f4f8 40%, #fafcfd 100%);
+}
+
+/* ── Lake surface (dark mode only) ── */
+#lake {
+  position: fixed; bottom: 0; left: 0; right: 0; height: 30vh;
+  z-index: 1; pointer-events: none;
+  background:
+    /* shimmer lines */
+    repeating-linear-gradient(
+      92deg,
+      transparent 0px,
+      rgba(91,140,255,0.04) 2px,
+      transparent 4px,
+      rgba(0,200,170,0.03) 6px,
+      transparent 8px
+    ),
+    /* depth */
+    linear-gradient(
+      0deg,
+      rgba(5,30,70,0.8) 0%,
+      rgba(8,18,45,0.5) 25%,
+      rgba(10,16,35,0.25) 55%,
+      transparent 100%
+    ),
+    /* reflection glow */
+    radial-gradient(ellipse 70% 40% at 50% 60%, rgba(160,200,255,0.06) 0%, transparent 70%);
+  animation: lakeRipple 6s ease-in-out infinite alternate;
+  opacity: 1; transition: opacity 0.6s ease;
+}
+[data-theme="light"] #lake { opacity: 0; }
+@keyframes lakeRipple {
+  0% { background-position: 0 0, 0 0, 50% 60%; }
+  50% { background-position: 4px 2px, 0 0, 55% 55%; }
+  100% { background-position: -2px -1px, 0 0, 45% 65%; }
+}
+
+/* ── tsParticles canvas ── */
+#tsparticles { position: fixed; inset: 0; z-index: 0; pointer-events: none; transition: opacity 0.6s ease; }
+#tsparticles.fading { opacity: 0; }
 
 
 /* ── Nav ── */
