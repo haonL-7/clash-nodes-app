@@ -1,4 +1,4 @@
-/* ── WebGL Water Surface ── */
+/* ── Three.js Water Surface ── */
 (function() {
   var canvas = document.createElement('canvas');
   canvas.id = 'waterCanvas';
@@ -14,82 +14,96 @@
   });
   obs.observe(document.documentElement, { attributes: true });
 
-  var gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: false });
-  if (!gl) { console.warn('WebGL not available, water disabled'); return; }
+  if (typeof THREE === 'undefined') { console.warn('Three.js not loaded'); return; }
 
-  var vertSrc = 'attribute vec2 a;void main(){gl_Position=vec4(a,0,1);}';
-  var fragSrc =
-    'precision highp float;\n'+
-    'uniform vec2 r;\n'+
-    'uniform float t;\n'+
-    'void main(){\n'+
-    '  vec2 uv=gl_FragCoord.xy/r;\n'+
-    '  float line=.58;\n'+
-    // Sky region: fully transparent
-    '  if(uv.y<line-.01){gl_FragColor=vec4(0,0,0,0);return;}\n'+
-    '  float d=(uv.y-line)/(1.0-line);\n'+
-    // Wave field — 4 octaves
-    '  float w=sin(uv.x*5.3+t*1.3)*.42;\n'+
-    '  w+=sin(uv.x*9.7-t*1.1+uv.y*2.6)*.28;\n'+
-    '  w+=cos(uv.x*15.5+t*1.7)*.18;\n'+
-    '  w+=sin(uv.x*23.0-t*2.3+uv.y*6.0)*.08;\n'+
-    // Water color — teal blue gradient
-    '  vec3 surf=vec3(.06,.22,.42);\n'+
-    '  vec3 bottom=vec3(.02,.08,.20);\n'+
-    '  vec3 col=mix(surf,bottom,d);\n'+
-    // Wave highlights
-    '  float crest=pow(sin(w*3.14)*.5+.5,18.0);\n'+
-    '  col+=crest*.12*vec3(.4,.7,1.0)*(1.0-d);\n'+
-    // Moon reflection
-    '  float mx=.52+sin(t*.08)*.06;\n'+
-    '  float beam=exp(-abs(uv.x-mx)*6.0);\n'+
-    '  float rip=sin(uv.y*35.0-t*2.5+w*4.0)*.5+.5;\n'+
-    '  col+=beam*rip*pow(1.0-d,5.0)*.22*vec3(.6,.8,1.0);\n'+
-    // Fresnel at horizon
-    '  col+=pow(1.0-d,2.2)*.08*vec3(.3,.5,.9);\n'+
-    // Smooth fade at shoreline
-    '  float alpha=smoothstep(line-.01,line+.005,uv.y);\n'+
-    '  gl_FragColor=vec4(col,alpha);\n'+
-    '}';
+  var renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setClearColor(0x000000, 0);
 
-  function compile(type, src) {
-    var s = gl.createShader(type);
-    gl.shaderSource(s, src);
-    gl.compileShader(s);
-    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) console.warn('Shader error:', gl.getShaderInfoLog(s));
-    return s;
-  }
-  var prog = gl.createProgram();
-  gl.attachShader(prog, compile(gl.VERTEX_SHADER, vertSrc));
-  gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, fragSrc));
-  gl.linkProgram(prog);
-  gl.useProgram(prog);
+  var scene = new THREE.Scene();
+  var camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+  camera.position.set(0, 0.5, 2.8);
+  camera.lookAt(0, 0.5, 0);
 
-  var buf = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
-  var a = gl.getAttribLocation(prog, 'a');
-  gl.enableVertexAttribArray(a);
-  gl.vertexAttribPointer(a, 2, gl.FLOAT, false, 0, 0);
+  // Large water plane
+  var geo = new THREE.PlaneGeometry(8, 4, 120, 60);
+  geo.rotateX(-Math.PI / 2);
 
-  var uR = gl.getUniformLocation(prog, 'r');
-  var uT = gl.getUniformLocation(prog, 't');
+  var mat = new THREE.ShaderMaterial({
+    uniforms: {
+      uTime: { value: 0 },
+      uColor1: { value: new THREE.Color('#0a3060') },
+      uColor2: { value: new THREE.Color('#041830') },
+      uHighlight: { value: new THREE.Color('#6098d0') },
+    },
+    vertexShader: [
+      'uniform float uTime;',
+      'varying vec3 vPos;',
+      'varying vec2 vUv;',
+      'void main() {',
+      '  vec3 pos = position;',
+      // Multi-layer wave displacement
+      '  float w = sin(pos.x * 3.5 + uTime * 1.2) * 0.12;',
+      '  w += cos(pos.x * 5.8 - uTime * 0.9 + pos.z * 2.0) * 0.08;',
+      '  w += sin(pos.x * 9.1 + uTime * 1.5 + pos.z * 4.1) * 0.05;',
+      '  w += cos(pos.x * 14.0 - uTime * 2.0) * 0.03;',
+      '  pos.y += w;',
+      '  vPos = pos;',
+      '  vUv = uv;',
+      '  gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);',
+      '}'
+    ].join('\n'),
+    fragmentShader: [
+      'uniform float uTime;',
+      'uniform vec3 uColor1;',
+      'uniform vec3 uColor2;',
+      'uniform vec3 uHighlight;',
+      'varying vec3 vPos;',
+      'varying vec2 vUv;',
+      'void main() {',
+      // Depth factor: near edge = shallow, far = deep
+      '  float depth = 1.0 - vUv.y;',
+      // Water color gradient
+      '  vec3 col = mix(uColor1, uColor2, depth);',
+      // Specular on wave crests (from vertex displacement stored in vPos)
+      '  float wave = sin(vPos.x * 10.0 + uTime * 1.3) * 0.5 + 0.5;',
+      '  float crest = pow(wave, 20.0);',
+      '  col += crest * 0.15 * uHighlight;',
+      // Moon reflection
+      '  float mx = 0.0;',
+      '  float beam = exp(-abs(vPos.x - mx) * 2.5);',
+      '  float rip = sin(vPos.x * 8.0 - uTime * 2.0 + vPos.y * 20.0) * 0.5 + 0.5;',
+      '  col += beam * rip * (1.0 - depth) * 0.15 * uHighlight;',
+      // Fresnel at horizon (top of water)
+      '  col += pow(1.0 - vUv.y, 3.0) * 0.08 * uHighlight;',
+      // Alpha: transparent at horizon, opaque at bottom
+      '  float alpha = smoothstep(0.0, 0.4, vUv.y) * 0.92;',
+      '  gl_FragColor = vec4(col, alpha);',
+      '}'
+    ].join('\n'),
+    transparent: true,
+    depthWrite: false,
+  });
+
+  var water = new THREE.Mesh(geo, mat);
+  scene.add(water);
 
   function resize() {
-    var dpr = window.devicePixelRatio || 1;
-    canvas.width = window.innerWidth * dpr;
-    canvas.height = window.innerHeight * dpr;
-    gl.viewport(0, 0, canvas.width, canvas.height);
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    renderer.setSize(w, h);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    // Position water at bottom 35% of viewport
+    water.position.y = -0.25;
+    water.scale.set(1, 1, 0.55);
   }
   window.addEventListener('resize', resize);
   resize();
 
   function render(ts) {
-    gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    gl.uniform2f(uR, canvas.width, canvas.height);
-    gl.uniform1f(uT, ts * .001);
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    mat.uniforms.uTime.value = ts * 0.001;
+    renderer.render(scene, camera);
     requestAnimationFrame(render);
   }
   requestAnimationFrame(render);
