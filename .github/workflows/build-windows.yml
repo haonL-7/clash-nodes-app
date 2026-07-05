@@ -1,8 +1,6 @@
 name: Build Windows
 
 on:
-  push:
-    tags: ['v*']
   workflow_dispatch:
 
 jobs:
@@ -11,28 +9,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
-      - name: Install dependencies
-        run: npm install
+      - run: npm install
 
-      - name: Package app (cross-compile for Windows)
-        run: npx electron-packager . "Clash Nodes" --platform=win32 --arch=x64 --out=release --overwrite --asar --prune=true
+      - run: npm run build
 
-      - name: Create ZIP
-        run: cd release && zip -r ../ClashNodes-windows-x64.zip "Clash Nodes-win32-x64"
+      - run: cd release && zip -r ../ClashNodes-windows-x64.zip ./
 
-      - name: Upload ZIP
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: ClashNodes-Windows
           path: ClashNodes-windows-x64.zip
 
-      - name: Upload to Release
-        uses: softprops/action-gh-release@v1
+      - uses: softprops/action-gh-release@v1
         with:
           files: ClashNodes-windows-x64.zip
         env:
