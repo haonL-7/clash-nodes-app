@@ -6,14 +6,10 @@
   "main": "app/main.js",
   "scripts": {
     "start": "electron .",
-    "package": "electron-forge package",
-    "make": "electron-forge make"
+    "build": "electron-packager . \"Clash Nodes\" --platform=win32 --arch=x64 --out=release --overwrite --asar --prune=true --ignore=\"src-tauri|.github|launch\"
   },
-  "dependencies": {},
   "devDependencies": {
-    "@electron-forge/cli": "^7.6.0",
-    "@electron-forge/maker-zip": "^7.6.0",
-    "@electron-forge/maker-squirrel": "^7.6.0",
-    "electron": "^33.0.0"
+    "electron": "^33.0.0",
+    "electron-packager": "^17.1.2"
   }
 }
