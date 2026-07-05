@@ -15,10 +15,8 @@
 </head>
 <body>
 
-<!-- tsParticles canvas -->
+<!-- tsParticles canvas (stars / bubbles) -->
 <div id="tsparticles"></div>
-<!-- Dark mode lake surface -->
-<div id="lake"></div>
 
 <!-- Navigation -->
 <nav class="nav">
@@ -174,6 +172,7 @@
 <script src="js/bridge.js"></script>
 <script src="js/nodes.js"></script>
 <script src="js/app.js"></script>
+<script src="js/water.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tsparticles/engine@4/tsparticles.engine.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tsparticles/slim@4/tsparticles.slim.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tsparticles/preset-stars@4/tsparticles.preset.stars.bundle.min.js"></script>
@@ -195,16 +194,21 @@
     },
     fullScreen: { enable: true, zIndex: 0 }
   };
+  // iOS-style frosted glass bubbles
   var light = {
     background: { color: 'transparent' },
     particles: {
-      number: { value: 45 },
-      color: { value: ['rgba(180,200,240,.3)','rgba(200,220,255,.25)','rgba(160,190,230,.2)','rgba(220,235,255,.35)','rgba(140,170,220,.2)'] },
+      number: { value: 38 },
+      color: { value: [
+        'rgba(255,255,255,.22)','rgba(240,245,255,.18)','rgba(220,235,255,.16)',
+        'rgba(200,220,250,.20)','rgba(245,250,255,.14)','rgba(190,215,245,.12)'
+      ]},
       shape: { type: 'circle' },
-      opacity: { value: .35, animation: { enable: true, speed: .6, sync: false, min: .1, max: .5 } },
-      size: { value: { min: 4, max: 28 }, animation: { enable: true, speed: 2, sync: false, min: 3, max: 30 } },
-      move: { enable: true, speed: .3, direction: 'top', random: true, straight: false, outModes: { default: 'out' } },
-      stroke: { width: 1, color: 'rgba(255,255,255,.15)' }
+      opacity: { value: .25, animation: { enable: true, speed: .4, sync: false, min: .08, max: .35 } },
+      size: { value: { min: 8, max: 55 }, animation: { enable: true, speed: 1.2, sync: false, min: 6, max: 60 } },
+      move: { enable: true, speed: .2, direction: 'top', random: true, straight: false, outModes: { default: 'out' } },
+      // Glass edge
+      stroke: { width: 1.5, color: 'rgba(255,255,255,.2)', opacity: .5 }
     },
     fullScreen: { enable: true, zIndex: 0 }
   };
