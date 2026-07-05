@@ -19,15 +19,13 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build Windows installer
-        run: npx electron-builder --win --x64
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build portable EXE
+        run: npx electron-builder --win portable --x64
 
-      - name: Upload installer
+      - name: Upload EXE
         uses: actions/upload-artifact@v4
         with:
-          name: windows-installer
+          name: Clash-Nodes-Windows
           path: release/*.exe
 
       - name: Upload to Release
