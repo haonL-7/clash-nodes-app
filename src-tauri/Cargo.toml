@@ -1,0 +1,35 @@
+[package]
+name = "clash-nodes-app"
+version = "1.0.0"
+description = "Free proxy subscription & node directory"
+authors = ["haonl-7"]
+edition = "2021"
+rust-version = "1.70"
+
+[lib]
+name = "clash_nodes_app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-shell = "2"
+tauri-plugin-notification = "2"
+tauri-plugin-autostart = "2"
+tauri-plugin-fs = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-opener = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml = "0.9"
+reqwest = { version = "0.12", features = ["rustls-tls"], default-features = false }
+tokio = { version = "1", features = ["full"] }
+chrono = "0.4"
+dirs = "5"
+once_cell = "1"
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
