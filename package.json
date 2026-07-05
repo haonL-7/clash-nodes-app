@@ -1,36 +1,19 @@
 {
   "name": "clash-nodes-app",
   "version": "1.0.0",
-  "description": "Free proxy subscription & node directory — Windows desktop app",
+  "description": "Free proxy subscription & node directory",
   "author": "haonl-7",
   "main": "app/main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder --win portable"
+    "package": "electron-forge package",
+    "make": "electron-forge make"
   },
-  "build": {
-    "appId": "com.clashnodes.app",
-    "productName": "ClashNodes",
-    "directories": {
-      "output": "release"
-    },
-    "files": [
-      "app/**/*",
-      "src/**/*",
-      "package.json"
-    ],
-    "win": {
-      "target": "portable",
-      "icon": "src/assets/icon.png"
-    },
-    "portable": {
-      "artifactName": "ClashNodes.exe"
-    }
-  },
-  "dependencies": {
-    "electron": "^33.0.0"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "electron-builder": "^25.0.0"
+    "@electron-forge/cli": "^7.6.0",
+    "@electron-forge/maker-zip": "^7.6.0",
+    "@electron-forge/maker-squirrel": "^7.6.0",
+    "electron": "^33.0.0"
   }
 }
