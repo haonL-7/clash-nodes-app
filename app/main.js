@@ -1,23 +1,41 @@
-const { app, BrowserWindow, ipcMain, Tray, Menu, dialog, shell, Notification } = require('electron');
+const { app, BrowserWindow, ipcMain, Tray, Menu, shell, Notification } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const Store = require('electron-store');
 const { checkUpdateAvailable, fetchAndParseNodes } = require('./updater');
 const { setupAutoStart } = require('./autostart');
 
-// ── Settings store ──
-const store = new Store({
-  defaults: {
-    theme: 'dark',
-    language: 'en',
-    trayEnabled: false,
-    autostartEnabled: false,
-    notifyUpdates: true,
-    latencyTestEnabled: false,
-    refreshIntervalSecs: 21600,
-    lastUpdate: null
-  }
-});
+// ── Settings (simple JSON file) ──
+const settingsPath = path.join(app.getPath('userData'), 'settings.json');
+
+const defaultSettings = {
+  theme: 'dark',
+  language: 'en',
+  trayEnabled: false,
+  autostartEnabled: false,
+  notifyUpdates: true,
+  latencyTestEnabled: false,
+  refreshIntervalSecs: 21600,
+  lastUpdate: null
+};
+
+function loadSettings() {
+  try {
+    if (fs.existsSync(settingsPath)) {
+      return { ...defaultSettings, ...JSON.parse(fs.readFileSync(settingsPath, 'utf-8')) };
+    }
+  } catch (e) { console.error('Load settings error:', e); }
+  return { ...defaultSettings };
+}
+
+function saveSettings(settings) {
+  try {
+    const dir = path.dirname(settingsPath);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+  } catch (e) { console.error('Save settings error:', e); }
+}
+
+let currentSettings = defaultSettings;
 
 // ── Globals ──
 let mainWindow = null;
@@ -41,7 +59,6 @@ function createWindow() {
       nodeIntegration: false,
       sandbox: false
     },
-    frame: true,
     autoHideMenuBar: true,
     backgroundColor: '#0a0f1e'
   });
@@ -53,7 +70,7 @@ function createWindow() {
   });
 
   mainWindow.on('close', (event) => {
-    if (!isQuitting && store.get('trayEnabled')) {
+    if (!isQuitting && currentSettings.trayEnabled) {
       event.preventDefault();
       mainWindow.hide();
     }
@@ -68,188 +85,118 @@ function createWindow() {
 
 // ── System Tray ──
 function createTray() {
-  // Use a simple 16x16 PNG icon (create from scratch if needed)
   const iconPath = path.join(__dirname, '..', 'src', 'assets', 'tray-icon.png');
-
-  // Fallback: use a minimal built-in approach
   try {
     tray = new Tray(iconPath);
   } catch (e) {
-    // Create a tiny PNG programmatically if file doesn't exist
-    console.log('Tray icon not found, tray disabled until icon is provided');
+    console.log('Tray icon not found:', e.message);
     return;
   }
 
   const contextMenu = Menu.buildFromTemplate([
     {
       label: 'Show Window',
-      click: () => {
-        if (mainWindow) {
-          mainWindow.show();
-          mainWindow.focus();
-        }
-      }
+      click: () => { if (mainWindow) { mainWindow.show(); mainWindow.focus(); } }
     },
     {
       label: 'Copy Subscription URL',
-      click: () => {
-        if (mainWindow) {
-          mainWindow.webContents.send('tray-copy-url');
-        }
-      }
+      click: () => { if (mainWindow) mainWindow.webContents.send('tray-copy-url'); }
     },
     { type: 'separator' },
     {
       label: 'Quit',
-      click: () => {
-        isQuitting = true;
-        app.quit();
-      }
+      click: () => { isQuitting = true; app.quit(); }
     }
   ]);
 
   tray.setToolTip('Clash Nodes');
   tray.setContextMenu(contextMenu);
-
   tray.on('double-click', () => {
-    if (mainWindow) {
-      mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show();
-    }
+    if (mainWindow) { mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show(); }
   });
-
-  // Hide tray initially (enabled via settings)
-  tray.setVisible(store.get('trayEnabled'));
+  tray.setVisible(currentSettings.trayEnabled);
 }
 
 // ── IPC Handlers ──
+ipcMain.handle('get-settings', () => currentSettings);
 
-// Settings
-ipcMain.handle('get-settings', () => {
-  return store.store;
-});
+ipcMain.handle('save-settings', (event, newSettings) => {
+  currentSettings = { ...currentSettings, ...newSettings };
+  saveSettings(currentSettings);
 
-ipcMain.handle('save-settings', (event, settings) => {
-  const old = { ...store.store };
-  store.set(settings);
-
-  // Apply changes immediately
-  if (settings.trayEnabled !== undefined && settings.trayEnabled !== old.trayEnabled) {
-    if (tray) tray.setVisible(settings.trayEnabled);
+  if (newSettings.trayEnabled !== undefined && tray) {
+    tray.setVisible(newSettings.trayEnabled);
   }
-  if (settings.autostartEnabled !== undefined) {
-    setupAutoStart(settings.autostartEnabled);
+  if (newSettings.autostartEnabled !== undefined) {
+    setupAutoStart(newSettings.autostartEnabled);
   }
-
   return { success: true };
 });
 
-// Clipboard
 ipcMain.handle('copy-to-clipboard', (event, text) => {
   const { clipboard } = require('electron');
   clipboard.writeText(text);
   return { success: true };
 });
 
-// Node fetching
 ipcMain.handle('fetch-nodes', async () => {
   try {
     const result = await fetchAndParseNodes();
     if (result && result.nodes) {
-      // Cache to disk
       const cachePath = path.join(app.getPath('userData'), 'nodes_cache.json');
       fs.writeFileSync(cachePath, JSON.stringify(result.nodes, null, 2));
-      store.set('lastUpdate', new Date().toISOString());
+      currentSettings.lastUpdate = new Date().toISOString();
+      saveSettings(currentSettings);
     }
     return result;
-  } catch (e) {
-    console.error('Fetch nodes error:', e);
-    return { error: e.message };
-  }
+  } catch (e) { return { error: e.message }; }
 });
 
 ipcMain.handle('get-cached-nodes', () => {
   try {
     const cachePath = path.join(app.getPath('userData'), 'nodes_cache.json');
-    if (fs.existsSync(cachePath)) {
-      const data = fs.readFileSync(cachePath, 'utf-8');
-      return JSON.parse(data);
-    }
-  } catch (e) {
-    console.error('Read cache error:', e);
-  }
+    if (fs.existsSync(cachePath)) return JSON.parse(fs.readFileSync(cachePath, 'utf-8'));
+  } catch (e) { console.error('Read cache error:', e); }
   return [];
 });
 
-// Update check
 ipcMain.handle('check-update', async () => {
   try {
     const result = await checkUpdateAvailable();
-    if (result && store.get('notifyUpdates')) {
+    if (result && result.updated && currentSettings.notifyUpdates) {
       new Notification({
         title: 'Clash Nodes Updated',
-        body: 'New proxy nodes are available. Click to refresh.',
-        urgency: 'normal'
+        body: 'New proxy nodes available. Click to refresh.'
       }).on('click', () => {
-        if (mainWindow) {
-          mainWindow.show();
-          mainWindow.webContents.send('trigger-refresh');
-        }
+        if (mainWindow) { mainWindow.show(); mainWindow.webContents.send('trigger-refresh'); }
       }).show();
     }
     return result;
-  } catch (e) {
-    return { updated: false };
-  }
+  } catch (e) { return { updated: false }; }
 });
 
-// Window controls
-ipcMain.handle('window-minimize', () => {
-  if (mainWindow) mainWindow.minimize();
-});
-
+ipcMain.handle('window-minimize', () => { if (mainWindow) mainWindow.minimize(); });
 ipcMain.handle('window-close', () => {
-  if (store.get('trayEnabled')) {
-    mainWindow.hide();
-  } else {
-    isQuitting = true;
-    app.quit();
-  }
+  if (currentSettings.trayEnabled) { mainWindow.hide(); }
+  else { isQuitting = true; app.quit(); }
 });
-
-// Open external URL
-ipcMain.handle('open-external', (event, url) => {
-  shell.openExternal(url);
-});
+ipcMain.handle('open-external', (event, url) => { shell.openExternal(url); });
 
 // ── App lifecycle ──
 app.whenReady().then(() => {
+  currentSettings = loadSettings();
   createWindow();
   createTray();
-
-  // Apply stored autostart setting
-  if (store.get('autostartEnabled')) {
-    setupAutoStart(true);
-  }
+  if (currentSettings.autostartEnabled) setupAutoStart(true);
 
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    }
-    if (mainWindow) {
-      mainWindow.show();
-    }
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    if (mainWindow) mainWindow.show();
   });
 });
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    // Don't quit if tray is enabled — keep running in background
-    if (!store.get('trayEnabled')) {
-      app.quit();
-    }
-  }
+  if (!currentSettings.trayEnabled) app.quit();
 });
 
-app.on('before-quit', () => {
-  isQuitting = true;
-});
+app.on('before-quit', () => { isQuitting = true; });
