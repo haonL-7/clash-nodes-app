@@ -1,7 +1,7 @@
 /* ── i18n ── */
 var LANG = {
   en: {
-    subtitle: 'Free proxy subscription &mdash; auto-updated daily via <a href="https://yoyapai.com" target="_blank">yoyapai.com</a>',
+    subtitle: 'Free proxy subscription &mdash; auto-updated daily from public sources',
     sub_title: 'Subscription URLs',
     copy: 'Copy',
     copied: 'Copied',
@@ -36,7 +36,7 @@ var LANG = {
     toast_share: 'Subscription link copied — share with your client app'
   },
   zh: {
-    subtitle: '免费代理订阅 &mdash; 每日自动更新，数据来源 <a href="https://yoyapai.com" target="_blank">yoyapai.com</a>',
+    subtitle: '免费代理订阅 &mdash; 每日自动更新，聚合公开数据',
     sub_title: '订阅地址',
     copy: '复制',
     copied: '已复制',
