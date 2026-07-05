@@ -9,7 +9,7 @@
     "build": "electron-packager . \"Clash Nodes\" --platform=win32 --arch=x64 --out=release --overwrite"
   },
   "devDependencies": {
-    "@electron/packager": "^18.0.0",
+    "electron-packager": "^17.1.2",
     "electron": "^35.0.0"
   }
 }
