@@ -170,6 +170,51 @@
 <script src="js/nodes.js"></script>
 <script src="js/app.js"></script>
 <script>
+/* ── 3D Parallax: cards tilt toward cursor ── */
+(function() {
+  var container = document.querySelector('.container');
+  if (!container) return;
+  var cards = container.querySelectorAll('.card, .stat');
+  if (!cards.length) return;
+
+  var mouseX = 0, mouseY = 0;
+  var ticking = false;
+
+  document.addEventListener('mousemove', function(e) {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    if (!ticking) {
+      requestAnimationFrame(function() {
+        var cx = window.innerWidth / 2;
+        var cy = window.innerHeight / 2;
+        // Normalized mouse position: -1 to 1
+        var nx = (mouseX - cx) / cx;
+        var ny = (mouseY - cy) / cy;
+
+        cards.forEach(function(card, i) {
+          var depth = (i % 3) * 4 + 6; // 6-14 deg max tilt
+          var rx = ny * depth * -1;
+          var ry = nx * depth;
+          var z = 20 + (i % 5) * 3; // varying Z depths
+          card.style.transform =
+            'translateZ(' + z + 'px) rotateX(' + rx.toFixed(1) + 'deg) rotateY(' + ry.toFixed(1) + 'deg)';
+        });
+        ticking = false;
+      });
+      ticking = true;
+    }
+  });
+
+  // Reset on mouse leave
+  document.addEventListener('mouseleave', function() {
+    cards.forEach(function(card, i) {
+      var z = 20 + (i % 5) * 3;
+      card.style.transform = 'translateZ(' + z + 'px) rotateX(0deg) rotateY(0deg)';
+    });
+  });
+})();
+</script>
+<script>
 // Register PWA service worker
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(function() {});
