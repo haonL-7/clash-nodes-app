@@ -46,24 +46,12 @@ body {
   font-family: var(--font-sans);
   font-size: 14.5px; line-height: 1.55;
   color: var(--text-primary);
-  background:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(91,140,255,0.04) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 40% at 80% 80%, rgba(0,212,170,0.03) 0%, transparent 50%),
-    var(--bg-void);
+  background: var(--bg-void);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Subtle scanline overlay */
-body::after {
-  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9999;
-  background: repeating-linear-gradient(
-    0deg, transparent, transparent 2px,
-    rgba(0,0,0,0.015) 2px, rgba(0,0,0,0.015) 4px
-  );
-  opacity: 0.5;
-}
 
 /* ── Nav ── */
 .nav {
@@ -104,6 +92,7 @@ body::after {
   max-width: 840px; margin: 0 auto; padding: 1.5rem 1rem 2rem;
   perspective: 1200px;
   perspective-origin: 50% 20%;
+  position: relative; z-index: 10;
 }
 
 /* ── Header ── */

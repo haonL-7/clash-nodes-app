@@ -1,0 +1,251 @@
+/* ═══════════════════════════════════════
+   Atmosphere: Starry Lake ↔ Cloud Sea
+   — theme-aware animated backgrounds
+   ═══════════════════════════════════════ */
+
+/* ── SVG Filter Definitions (injected via JS) ── */
+
+/* ── Base atmosphere container ── */
+#atmosphere {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  overflow: hidden;
+}
+
+/* ── DARK MODE: Starry Lake ── */
+[data-theme="dark"] #atmosphere {
+  /* Deep night sky gradient */
+  background: linear-gradient(
+    180deg,
+    #040a18 0%,
+    #060e20 15%,
+    #080f24 30%,
+    #0a1228 60%,
+    #0c152e 85%,
+    #0e1834 100%
+  );
+}
+
+/* Lake surface — shimmering water at the bottom */
+.dark-lake {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 28%;
+  background:
+    /* Ripple highlights */
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      rgba(91,140,255,0.03) 2px,
+      transparent 4px,
+      rgba(0,212,170,0.02) 6px,
+      transparent 8px
+    ),
+    /* Depth gradient */
+    linear-gradient(
+      0deg,
+      rgba(5,40,80,0.7) 0%,
+      rgba(8,20,50,0.4) 30%,
+      rgba(10,18,40,0.2) 60%,
+      transparent 100%
+    ),
+    /* Moon reflection */
+    radial-gradient(
+      ellipse 60% 30% at 55% 70%,
+      rgba(180,200,255,0.08) 0%,
+      transparent 60%
+    );
+  animation: lakeShimmer 8s ease-in-out infinite alternate;
+}
+
+@keyframes lakeShimmer {
+  0% {
+    background-position: 0 0, 0 0, 55% 70%;
+    opacity: 0.8;
+  }
+  50% {
+    background-position: 3px 1px, 0 0, 60% 65%;
+    opacity: 1;
+  }
+  100% {
+    background-position: -2px -1px, 0 0, 50% 75%;
+    opacity: 0.85;
+  }
+}
+
+/* Starfield — CSS box-shadow technique */
+.dark-stars {
+  position: absolute; top: 0; left: 0; width: 100%; height: 72%;
+}
+.dark-stars::before,
+.dark-stars::after {
+  content: ''; position: absolute; inset: 0;
+  border-radius: 50%;
+  animation: starTwinkle 4s ease-in-out infinite alternate;
+}
+/* Layer 1: small stars (1px) */
+.dark-stars::before {
+  box-shadow:
+    10vw 5vh #fff8, 25vw 12vh #fff6, 40vw 8vh #fff7, 55vw 3vh #fff5,
+    70vw 15vh #fff8, 85vw 6vh #fff6, 15vw 25vh #fff7, 30vw 35vh #fff5,
+    50vw 22vh #fff9, 65vw 40vh #fff6, 80vw 18vh #fff7, 5vw 45vh #fff8,
+    20vw 55vh #fff5, 45vw 48vh #fff7, 60vw 58vh #fff6, 75vw 50vh #fff8,
+    90vw 35vh #fff7, 35vw 65vh #fff5, 95vw 60vh #fff6, 3vw 80vh #fff7,
+    12vw 15vh #fff9, 22vw 28vh #fff5, 38vw 12vh #fff8, 48vw 32vh #fff6,
+    58vw 8vh #fff7, 68vw 28vh #fff5, 78vw 45vh #fff8, 88vw 15vh #fff6,
+    8vw 60vh #fff7, 18vw 70vh #fff5, 28vw 52vh #fff8, 42vw 75vh #fff6,
+    52vw 62vh #fff7, 62vw 72vh #fff5, 72vw 55vh #fff8, 82vw 68vh #fff6,
+    92vw 48vh #fff7, 55vw 68vh #fff5, 25vw 78vh #fff8, 45vw 82vh #fff6,
+    65vw 76vh #fff7, 85vw 80vh #fff5, 95vw 72vh #fff8, 15vw 88vh #fff6,
+    33vw 85vh #fff7, 73vw 90vh #fff5, 6vw 35vh #fff8, 40vw 42vh #fff6;
+  animation-delay: 0s; animation-duration: 3s;
+}
+/* Layer 2: larger stars (2px), different timing */
+.dark-stars::after {
+  box-shadow:
+    18vw 8vh 1px #fffc, 35vw 18vh 1px #fffa, 52vw 5vh 1px #fffb,
+    68vw 12vh 1px #fffc, 82vw 22vh 1px #fffa, 8vw 30vh 1px #fffb,
+    28vw 42vh 1px #fffa, 48vw 32vh 1px #fffc, 64vw 48vh 1px #fffb,
+    78vw 38vh 1px #fffa, 92vw 25vh 1px #fffc, 22vw 62vh 1px #fffb,
+    42vw 55vh 1px #fffa, 58vw 68vh 1px #fffc, 72vw 58vh 1px #fffb,
+    88vw 65vh 1px #fffa, 12vw 75vh 1px #fffc, 32vw 72vh 1px #fffb,
+    55vw 78vh 1px #fffa, 75vw 85vh 1px #fffc, 90vw 78vh 1px #fffb,
+    5vw 55vh 1px #fffa, 38vw 80vh 1px #fffc, 62vw 82vh 1px #fffb;
+  animation-delay: -1.5s; animation-duration: 5s;
+}
+
+@keyframes starTwinkle {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.7; }
+}
+
+/* Shooting star */
+.dark-meteor {
+  position: absolute; top: 8%; left: 70%;
+  width: 2px; height: 2px; border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 4px 2px rgba(180,200,255,0.6);
+  animation: meteorFall 6s linear infinite;
+  opacity: 0;
+}
+.dark-meteor::after {
+  content: ''; position: absolute; top: 50%; right: 100%;
+  width: 40px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6));
+  transform: translateY(-50%);
+}
+@keyframes meteorFall {
+  0% { opacity: 0; transform: translate(0, 0); }
+  3% { opacity: 1; }
+  5% { opacity: 0; transform: translate(-180px, 100px); }
+  100% { opacity: 0; transform: translate(-200px, 120px); }
+}
+
+/* ── LIGHT MODE: Cloud Sea ── */
+[data-theme="light"] #atmosphere {
+  background: linear-gradient(
+    180deg,
+    #dce8f0 0%,
+    #e4ecf4 20%,
+    #ecf2f8 50%,
+    #f4f7fb 80%,
+    #f8fafc 100%
+  );
+  transition: background 0.8s ease;
+}
+
+/* Clouds using SVG feTurbulence */
+.light-clouds {
+  position: absolute; inset: 0;
+  filter: url(#cloud-filter);
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+[data-theme="light"] .light-clouds { opacity: 1; }
+
+.cloud-layer {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  border-radius: 60% 60% 0 0;
+}
+/* Back layer — slow, tall */
+.cloud-back {
+  height: 60%;
+  background: rgba(230,238,248,0.6);
+  top: auto; bottom: -10%;
+  left: -20%; right: -20%;
+  animation: cloudDrift 80s linear infinite;
+}
+/* Mid layer */
+.cloud-mid {
+  height: 45%;
+  background: rgba(240,245,250,0.7);
+  bottom: -5%;
+  left: -15%; right: -15%;
+  animation: cloudDrift 50s linear infinite;
+}
+/* Front layer — faster, lower */
+.cloud-front {
+  height: 35%;
+  background: rgba(248,251,254,0.8);
+  bottom: 0%;
+  left: -10%; right: -10%;
+  animation: cloudDrift 35s linear infinite;
+}
+
+@keyframes cloudDrift {
+  from { transform: translateX(-5%) scaleY(1); }
+  25% { transform: translateX(3%) scaleY(1.03); }
+  50% { transform: translateX(-2%) scaleY(0.98); }
+  75% { transform: translateX(4%) scaleY(1.02); }
+  to { transform: translateX(-5%) scaleY(1); }
+}
+
+/* Mist at the bottom */
+.light-mist {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 20%;
+  background: linear-gradient(
+    0deg,
+    rgba(230,240,250,0.9) 0%,
+    rgba(240,245,250,0.5) 40%,
+    transparent 100%
+  );
+  animation: mistBreathe 10s ease-in-out infinite;
+}
+@keyframes mistBreathe {
+  0%, 100% { opacity: 0.7; transform: scaleY(1); }
+  50% { opacity: 1; transform: scaleY(1.08); }
+}
+
+/* Sun glow */
+.light-sun {
+  position: absolute; top: -5%; left: 65%;
+  width: 180px; height: 180px; border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255,240,220,0.4) 0%,
+    rgba(255,230,200,0.2) 25%,
+    rgba(255,220,180,0.08) 50%,
+    transparent 70%
+  );
+  animation: sunPulse 12s ease-in-out infinite alternate;
+}
+@keyframes sunPulse {
+  0% { opacity: 0.6; transform: scale(1); }
+  100% { opacity: 1; transform: scale(1.1); }
+}
+
+/* ── Theme transition "pop" ── */
+#atmosphere { transition: background 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+[data-theme="dark"] .light-clouds,
+[data-theme="dark"] .light-mist,
+[data-theme="dark"] .light-sun {
+  opacity: 0; transition: opacity 0.4s ease;
+}
+[data-theme="light"] .dark-lake,
+[data-theme="light"] .dark-stars,
+[data-theme="light"] .dark-meteor {
+  opacity: 0; transition: opacity 0.3s ease;
+}
+
+/* Override body bg — bg comes from atmosphere */
+body {
+  background: transparent !important;
+}
