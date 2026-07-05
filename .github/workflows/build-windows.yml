@@ -19,13 +19,13 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build portable EXE
-        run: npx electron-builder --win portable --x64
+      - name: Build
+        run: npm run build
 
-      - name: Upload EXE
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Clash-Nodes-Windows
+          name: ClashNodes-Windows
           path: release/*.exe
 
       - name: Upload to Release

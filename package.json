@@ -2,16 +2,15 @@
   "name": "clash-nodes-app",
   "version": "1.0.0",
   "description": "Free proxy subscription & node directory — Windows desktop app",
+  "author": "haonl-7",
   "main": "app/main.js",
   "scripts": {
     "start": "electron .",
-    "dev": "electron . --dev",
-    "dist": "electron-builder",
-    "dist:win": "electron-builder --win"
+    "build": "electron-builder --win portable"
   },
   "build": {
-    "appId": "com.clash-nodes.app",
-    "productName": "Clash Nodes",
+    "appId": "com.clashnodes.app",
+    "productName": "ClashNodes",
     "directories": {
       "output": "release"
     },
@@ -21,27 +20,17 @@
       "package.json"
     ],
     "win": {
-      "target": [
-        {
-          "target": "nsis",
-          "arch": ["x64"]
-        },
-        {
-          "target": "portable",
-          "arch": ["x64"]
-        }
-      ],
+      "target": "portable",
       "icon": "src/assets/icon.png"
     },
-    "nsis": {
-      "oneClick": false,
-      "perMachine": false,
-      "allowToChangeInstallationDirectory": true,
-      "language": "2052"
+    "portable": {
+      "artifactName": "ClashNodes.exe"
     }
   },
+  "dependencies": {
+    "electron": "^33.0.0"
+  },
   "devDependencies": {
-    "electron": "^33.0.0",
     "electron-builder": "^25.0.0"
   }
 }
