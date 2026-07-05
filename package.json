@@ -6,7 +6,7 @@
   "main": "app/main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-packager . \"Clash Nodes\" --platform=win32 --arch=x64 --out=release --overwrite --asar --prune=true --ignore=\"src-tauri|.github|launch\"
+    "build": "electron-packager . \"Clash Nodes\" --platform=win32 --arch=x64 --out=release --overwrite --asar --prune=true"
   },
   "devDependencies": {
     "electron": "^33.0.0",
