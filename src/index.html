@@ -48,10 +48,13 @@
 </header>
 
 <div class="stats">
-  <div class="stat total entrance entrance-d1"><div class="num total" data-target="294">294</div><div class="label">Total</div></div>
-  <div class="stat jp entrance entrance-d2"><div class="num jp" data-target="17">17</div><div class="label">Japan</div></div>
-  <div class="stat us entrance entrance-d3"><div class="num us" data-target="88">88</div><div class="label">US</div></div>
-  <div class="stat fr entrance entrance-d4"><div class="num fr" data-target="9">9</div><div class="label">France</div></div>
+  <div class="stat total entrance entrance-d1"><div class="num total">638</div><div class="label">Merged</div></div>
+  <div class="stat jp entrance entrance-d2"><div class="num jp">284</div><div class="label">yoyapai</div></div>
+  <div class="stat us entrance entrance-d3"><div class="num us">140</div><div class="label">freeSub</div></div>
+  <div class="stat fr entrance entrance-d4"><div class="num fr">127</div><div class="label">free-vpn</div></div>
+  <div class="stat entrance"><div class="num" style="color:#a78bfa">183</div><div class="label">awesome-vpn</div></div>
+  <div class="stat entrance"><div class="num" style="color:var(--text-dim)">734</div><div class="label">Raw Total</div></div>
+  <div class="stat entrance"><div class="num" style="color:var(--amber)">96</div><div class="label">Dupes</div></div>
 </div>
 
 <div class="card entrance entrance-d1">
@@ -92,11 +95,11 @@
 <div class="card entrance entrance-d3">
   <h2 data-i18n="nodes_title">Node Directory</h2>
   <div class="toolbar">
-    <button class="filter-btn active" onclick="setFilter('all', this)"><span data-i18n="all">All</span><span class="count">294</span></button>
-    <button class="filter-btn" onclick="setFilter('jp', this)">Japan<span class="count">17</span></button>
-    <button class="filter-btn" onclick="setFilter('us', this)">US<span class="count">88</span></button>
-    <button class="filter-btn" onclick="setFilter('fr', this)">France<span class="count">9</span></button>
-    <button class="filter-btn" onclick="setFilter('other', this)"><span data-i18n="other">Other</span><span class="count">180</span></button>
+    <button class="filter-btn active" onclick="setFilter('all', this)"><span data-i18n="all">All</span><span class="count">638</span></button>
+    <button class="filter-btn" onclick="setFilter('jp', this)">Japan<span class="count">22</span></button>
+    <button class="filter-btn" onclick="setFilter('us', this)">US<span class="count">142</span></button>
+    <button class="filter-btn" onclick="setFilter('fr', this)">France<span class="count">28</span></button>
+    <button class="filter-btn" onclick="setFilter('other', this)"><span data-i18n="other">Other</span><span class="count">446</span></button>
     <button class="filter-btn" id="latencyBtn" onclick="runLatencyUITest()"
             style="display:none" data-i18n="test_latency">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px">
