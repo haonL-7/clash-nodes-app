@@ -251,16 +251,26 @@ header h1::after {
   color: var(--text-inverse);
 }
 
-/* ── Client grid ── */
-.client-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: .5rem; }
-.client-item {
-  display: block; background: rgba(0,0,0,0.25); border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm); padding: .75rem .9rem;
-  text-decoration: none; transition: all .25s var(--ease-out);
+/* ── Download Grid ── */
+.dl-grid { display: flex; flex-direction: column; gap: .45rem; }
+.dl-item {
+  display: flex; align-items: center; gap: .75rem;
+  background: rgba(0,0,0,0.25); border: 1px solid var(--border-subtle);
+  border-radius: var(--radius); padding: .75rem .9rem;
+  text-decoration: none; transition: all .2s var(--ease-out);
 }
-.client-item:hover { border-color: var(--accent-blue); background: rgba(91,140,255,0.06); }
-.client-name { color: var(--text-primary); font-size: .8rem; font-weight: 650; }
-.client-meta { color: var(--text-muted); font-size: .68rem; margin-top: .15rem; }
+.dl-item:hover { border-color: var(--accent-blue); background: rgba(91,140,255,0.05); }
+.dl-icon { flex-shrink: 0; color: var(--accent-blue); display: flex; align-items: center; }
+.dl-info { flex: 1; min-width: 0; }
+.dl-name { color: var(--text-primary); font-size: .8rem; font-weight: 650; }
+.dl-meta { color: var(--text-muted); font-size: .66rem; margin-top: .08rem; }
+.dl-btn {
+  flex-shrink: 0; background: var(--accent-blue); color: #fff;
+  padding: .35rem .8rem; border-radius: var(--radius-sm);
+  font-size: .7rem; font-weight: 600; white-space: nowrap;
+  transition: all .2s;
+}
+.dl-item:hover .dl-btn { box-shadow: 0 4px 16px rgba(91,140,255,0.3); }
 
 /* ── Toolbar ── */
 .toolbar { display: flex; gap: .35rem; flex-wrap: wrap; align-items: center; margin-bottom: .85rem; }
