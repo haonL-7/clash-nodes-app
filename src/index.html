@@ -73,41 +73,12 @@
   </div>
 </div>
 
-<div class="card entrance entrance-d2">
-  <h2 data-i18n="clients_title">Download Client</h2>
-  <div class="dl-grid">
-    <a class="dl-item" href="https://github.com/clash-verge-rev/clash-verge-rev/releases/download/v2.5.1/Clash.Verge_2.5.1_x64-setup.exe" target="_blank">
-      <div class="dl-icon">
-        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-      </div>
-      <div class="dl-info">
-        <div class="dl-name">Windows</div>
-        <div class="dl-meta">Clash Verge Rev v2.5.1 &middot; 44.9 MB</div>
-      </div>
-      <div class="dl-btn">Download</div>
-    </a>
-    <a class="dl-item" href="https://github.com/chen08209/FlClash/releases/latest" target="_blank">
-      <div class="dl-icon">
-        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18.01"/></svg>
-      </div>
-      <div class="dl-info">
-        <div class="dl-name">Android</div>
-        <div class="dl-meta">FlClash &middot; APK on GitHub</div>
-      </div>
-      <div class="dl-btn">Download</div>
-    </a>
-    <a class="dl-item" href="https://github.com/clash-verge-rev/clash-verge-rev/releases/latest" target="_blank">
-      <div class="dl-icon">
-        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17.5 2C18.5 3.5 19 6 17 8.5C15 11 12 13 9.5 13.5C9 13.5 8.5 12 9 10.5C9.5 9 11 7 13 5C15 3 17 2 17.5 2Z"/><path d="M14.5 13C13 15.5 11.5 19 11.5 22"/><path d="M9.5 13.5L8 15"/><path d="M8 15C6.5 16 4.5 18 4 21"/></svg>
-      </div>
-      <div class="dl-info">
-        <div class="dl-name">macOS</div>
-        <div class="dl-meta">Clash Verge Rev &middot; DMG on GitHub</div>
-      </div>
-      <div class="dl-btn">Download</div>
-    </a>
+<div class="card entrance entrance-d2" id="aihotCard">
+  <h2>AI HOT &mdash; Latest</h2>
+  <div class="aihot-list" id="aihotList">
+    <div class="empty-state">Loading AI news...</div>
   </div>
-  <p style="color:var(--text-muted);font-size:.68rem;margin-top:.75rem;font-weight:500;" data-i18n="clients_hint">Install any client, then import the subscription URL above.</p>
+  <p style="color:var(--text-muted);font-size:.66rem;margin-top:.7rem;font-weight:500;">Data from <a href="https://aihot.virxact.com" target="_blank" style="color:var(--accent-blue)">aihot.virxact.com</a></p>
 </div>
 
 <div class="card entrance entrance-d3">
@@ -251,6 +222,37 @@
 
   var orig = toggleTheme;
   toggleTheme = function() { orig(); update(); };
+})();
+
+/* ── AI HOT fetch ── */
+(function() {
+  var list = document.getElementById('aihotList');
+  if (!list) return;
+  fetch('https://aihot.virxact.com/api/public/items?mode=selected&take=6')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var items = data.items || [];
+      if (!items.length) { list.innerHTML = '<div class="empty-state">No AI news available</div>'; return; }
+      var html = '';
+      items.forEach(function(i) {
+        var cat = i.category || 'other';
+        var title = (i.title || '').substring(0, 80);
+        var src = i.source || '';
+        var ts = i.publishedAt || '';
+        try {
+          var d = new Date(ts), now = new Date(), diff = now - d;
+          if (diff < 86400000) ts = ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
+          else if (diff < 172800000) ts = '昨天';
+          else ts = (d.getMonth()+1)+'/'+d.getDate();
+        } catch(e) {}
+        html += '<a class="aihot-item" href="'+(i.url||'#')+'" target="_blank">'+
+          '<span class="aihot-cat cat-'+cat+'">'+cat+'</span>'+
+          '<span class="aihot-title">'+title+'</span>'+
+          '<span class="aihot-meta">'+src+' &middot; '+ts+'</span></a>';
+      });
+      list.innerHTML = html;
+    })
+    .catch(function() { list.innerHTML = '<div class="empty-state">AI news unavailable</div>'; });
 })();
 </script>
 <script>

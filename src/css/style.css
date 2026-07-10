@@ -385,6 +385,31 @@ footer a:hover { color: var(--accent-blue); }
 .entrance-d3 { animation-delay: .13s; }
 .entrance-d4 { animation-delay: .18s; }
 
+/* ── AI HOT ── */
+.aihot-list { display: flex; flex-direction: column; gap: .3rem; }
+.aihot-item {
+  display: flex; align-items: center; gap: .5rem;
+  padding: .45rem .55rem; border-radius: var(--radius-sm);
+  text-decoration: none; transition: background .2s;
+  border: 1px solid transparent;
+}
+.aihot-item:hover { background: rgba(91,140,255,0.04); border-color: var(--border-subtle); }
+.aihot-cat {
+  flex-shrink: 0; font-size: .58rem; font-weight: 700; padding: 2px 6px;
+  border-radius: 3px; text-transform: uppercase; letter-spacing: .04em;
+  font-family: var(--font-mono); white-space: nowrap;
+}
+.cat-ai-models { background: rgba(0,212,170,0.1); color: var(--accent-teal); }
+.cat-ai-products { background: rgba(91,140,255,0.1); color: var(--accent-blue); }
+.cat-industry { background: rgba(245,158,11,0.1); color: var(--accent-amber); }
+.cat-paper { background: rgba(167,139,250,0.1); color: var(--accent-violet); }
+.cat-tip { background: rgba(255,140,66,0.08); color: var(--accent-orange); }
+.aihot-title {
+  flex:1; font-size: .73rem; color: var(--text-primary); font-weight: 500;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
+}
+.aihot-meta { flex-shrink: 0; font-size: .62rem; color: var(--text-muted); white-space: nowrap; }
+
 /* ── Latency ── */
 .latency-ms { font-family: var(--font-mono); font-size: .64rem; font-weight: 600; margin-left: .35rem; }
 .latency-fast { color: var(--accent-teal); }
